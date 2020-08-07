@@ -1,5 +1,5 @@
 #============================================================
-# File:   nospacetime.py
+# File:   generateNT.py
 # Author: Benny Saxen
 # Date:   2020-08-07
 #============================================================
@@ -12,43 +12,19 @@ import time
 
 resources = []
 #============================================================
-def createRandomTriples(triples,nodes):
+# Input
 #============================================================
-    n_triples = 0
-    fh = open('nst.random','w')
-    count = 0
-    duplicate = 0
-    mx = np.zeros((nodes+1,nodes+1))
-    while count < triples:
-        i = 0
-    #for i in range(0,triples):
+n = len(sys.argv)
 
-        ss = random.randint(1,nodes)
-        oo = random.randint(1,nodes)
+if n == 2:
+    inFile = sys.argv[1]
+    tpl = inFile.split(".")
+    ntFile = tpl[0]+'.nt'
+else:
+    print ("Usage: python3 generateNT.py <in:file.nst> ")
+    print ("OUTPUT: <out:file.nt> ")
+    exit()
 
-        while ss == oo:
-            oo = random.randint(1,nodes)
-            print (str(i) + " link to same node " + str(oo))
-
-        duplicate = mx[ss][oo]
-        while duplicate == 1:
-            ss = random.randint(1,nodes)
-            oo = random.randint(1,nodes)
-            print (str(i) + " duplicate " + str(ss)+ ' '+ str(oo))
-            duplicate = mx[ss][oo]
-        
-        if ss != oo and duplicate == 0:
-            count += 1
-            mx[ss][oo] = 1
-            triple = str(ss) + "," +str(oo)
-            fh.write(triple)
-            fh.write('\n')
-            print("triple "+str(ss)+','+str(oo))
-
-        print("loop "+str(i))
-
-    fh.close()
-    print ("Number of random generated triples " + str(count))
 #============================================================
 def addResource(res):
 #============================================================
@@ -79,7 +55,7 @@ def addResource(res):
 # Read graph 
 #============================================================
 dim = 0
-fh_in = open("nst.in",'r')
+fh_in = open(inFile,'r')
 
 n_triples = 0
 for line in fh_in:
@@ -99,30 +75,26 @@ for line in fh_in:
  
 fh_in.close()
 
-striples = 2**n_triples -1
+striples = 2**dim -1
 
-print( 'Objective Dimension: '+str(dim)+' '+'Objective Triples: '+str(n_triples)+' '+'Subjective Triples: '+str(striples))
+print( 'Objective Dimension: '+str(dim)+' '+'Triples: '+str(n_triples)+' '+'Subjective Nodes: '+str(striples))
 
-fh_out = open("nst.out",'w')
-fh_nt = open("nst.nt",'w')
-fh_out.write (str(dim)+'='+str(n_triples)+'\n')
-fh_in = open("nst.in",'r')
+
+fh_nt = open(ntFile,'w')
+fh_in = open(inFile,'r')
 
 for line in fh_in:
     line = line.replace("\n","")
     tpl = line.split(",")
     ssub = int(tpl[0])
     sobj = int(tpl[1])
-    fh_out.write (str(ssub)+' '+str(sobj)+'\n')
     triple = "<http://nospacetime.com#"+str(ssub) + "> <http://nospacetime.com#relation"+ "> <http://nospacetime.com#" + str(sobj) + "> . \n"
     fh_nt.write (triple)
 
- 
 fh_in.close()
-
-fh_out.close()
 fh_nt.close()
 
-createRandomTriples(100,100)
-
-
+print ("NT triple file created: "+ntFile)
+#============================================================
+# End of File
+#============================================================
