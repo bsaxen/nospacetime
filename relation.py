@@ -21,8 +21,8 @@ if n == 4:
     from_node = int(sys.argv[2])
     to_node = int(sys.argv[3])
     tpl = inFile.split(".")
-    outFile = 'S_'+tpl[0]+str(from_node)+'_'+str(to_node)+'.rel'
-    outFileNt = 'S_'+tpl[0]+str(from_node)+'_'+str(to_node)+'.nt'
+    outFile = 'S_'+tpl[0]+'_'+str(from_node)+'_'+str(to_node)+'.rel'
+    outFileNt = 'S_'+tpl[0]+'_'+str(from_node)+'_'+str(to_node)+'.nt'
 else:
     print ("Usage: python3 relation.py <nst-file> <from node> <to node> ")
     print ("OUTPUT: <out:relation_<from node>_<to node>.rel> ")
@@ -46,19 +46,19 @@ def calcS3(S3): # Overall Signalling Information
         print ("Open file error2")     
 
     for node in range(0,dim):
-        print ("Seed Node="+str(node))
+        #print ("Seed Node="+str(node))
         seed = np.zeros(dim)
         seed[node] = 1
-        print(" ".join(map(str,seed.astype(int))))
+        #print(" ".join(map(str,seed.astype(int))))
         wx = np.copy(tx) 
         for step in range(0,dim-1): 
-            print ("********* step="+str(step))
-            print ("Step="+str(step))
-            print("\n".join(map(str,wx.astype(int))))
+            #print ("********* step="+str(step))
+            #print ("Step="+str(step))
+            #print("\n".join(map(str,wx.astype(int))))
             work = np.einsum("ij,j->i", wx, seed)
             work = np.where(work > 0, 1, work)
-            print ("Work="+str(step))
-            print(" ".join(map(str,work.astype(int))))
+            #print ("Work="+str(step))
+            #print(" ".join(map(str,work.astype(int))))
 
             for ear in range(0,dim):
                 S3[node][step][ear] = work[ear]
@@ -68,7 +68,7 @@ def calcS3(S3): # Overall Signalling Information
                     iear  = ear + 1
                     st = str(inode) + " " + str(istep) + " " + str(iear) + "\n"
                     fh1.write(st)
-                    print (st)
+                    #print (st)
                     fh2.write("<http://nospacetime.com/node"+str(inode)+ ">\
                          <http://nospacetime.com/step"+str(istep)+">\
                          <http://nospacetime.com/node"+str(iear) + "> . \n")
@@ -233,42 +233,49 @@ def addResource(res):
 #============================================================
 
 dim = 0
-fh_in = open(inFile,'r')
+# fh_in = open(inFile,'r')
 
-n_triples = 0
-for line in fh_in:
-    n_triples += 1
-    line = line.replace("\n","")
-    tpl = line.split(",")
-    ssub = int(tpl[0])
-    sobj = int(tpl[1])
+# n_triples = 0
+# for line in fh_in:
+#     n_triples += 1
+#     line = line.replace("\n","")
+#     tpl = line.split(",")
+#     ssub = int(tpl[0])
+#     sobj = int(tpl[1])
 
-    sub = addResource(ssub) + 1
-    obj = addResource(sobj) + 1
+#     sub = addResource(ssub) + 1
+#     obj = addResource(sobj) + 1
 
-    if sub > dim:
-        dim = sub
-    if obj > dim:
-        dim = obj
+#     if sub > dim:
+#         dim = sub
+#     if obj > dim:
+#         dim = obj
  
+# fh_in.close()
+
+
+
+
+
+fh_in = open(inFile,'r')
+count = 0
+for line in fh_in:
+    count += 1
+    line = line.replace("\n","")
+    if count == 1:
+        dim = int(line)
+        mx = np.zeros((dim,dim))
+        print ('Dimension= '+str(dim))
+    else:
+        tpl = line.split(",")
+        ssub = int(tpl[0])-1
+        sobj = int(tpl[1])-1
+        mx[ssub][sobj] = 1
+
 fh_in.close()
 
 striples = 2**dim -1
-
-print( 'Objective Dimension: '+str(dim)+' '+'Triples: '+str(n_triples)+' '+'Subjective Nodes: '+str(striples))
-
-mx = np.zeros((dim,dim))
-
-fh_in = open(inFile,'r')
-
-for line in fh_in:
-    line = line.replace("\n","")
-    tpl = line.split(",")
-    ssub = int(tpl[0])-1
-    sobj = int(tpl[1])-1
-    mx[ssub][sobj] = 1
-
-fh_in.close()
+print( 'Objective Dimension: '+str(dim)+' '+'Triples: '+str(count)+' '+'Subjective Nodes: '+str(striples))
 
 S3 = np.zeros((dim,dim,dim))
 calcS3(S3)

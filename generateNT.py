@@ -54,42 +54,47 @@ def addResource(res):
 #============================================================
 # Read graph 
 #============================================================
-dim = 0
+#dim = 0
 fh_in = open(inFile,'r')
 
-n_triples = 0
-for line in fh_in:
-    n_triples += 1
-    line = line.replace("\n","")
-    tpl = line.split(",")
-    ssub = int(tpl[0])
-    sobj = int(tpl[1])
+# n_triples = 0
+# for line in fh_in:
+#     n_triples += 1
+#     line = line.replace("\n","")
+#     tpl = line.split(",")
+#     ssub = int(tpl[0])
+#     sobj = int(tpl[1])
 
-    sub = addResource(ssub) + 1
-    obj = addResource(sobj) + 1
+#     sub = addResource(ssub) + 1
+#     obj = addResource(sobj) + 1
 
-    if sub > dim:
-        dim = sub
-    if obj > dim:
-        dim = obj
+#     if sub > dim:
+#         dim = sub
+#     if obj > dim:
+#         dim = obj
  
-fh_in.close()
+# fh_in.close()
 
-striples = 2**dim -1
+# striples = 2**dim -1
 
-print( 'Objective Dimension: '+str(dim)+' '+'Triples: '+str(n_triples)+' '+'Subjective Nodes: '+str(striples))
+# print( 'Objective Dimension: '+str(dim)+' '+'Triples: '+str(n_triples)+' '+'Subjective Nodes: '+str(striples))
 
 
 fh_nt = open(ntFile,'w')
 fh_in = open(inFile,'r')
-
+count = 0
 for line in fh_in:
+    count += 1
     line = line.replace("\n","")
-    tpl = line.split(",")
-    ssub = int(tpl[0])
-    sobj = int(tpl[1])
-    triple = "<http://nospacetime.com#"+str(ssub) + "> <http://nospacetime.com#relation"+ "> <http://nospacetime.com#" + str(sobj) + "> . \n"
-    fh_nt.write (triple)
+    if count == 1:
+        dim = int(line)
+        print ('Dimension= '+str(dim))
+    else:
+        tpl = line.split(",")
+        ssub = int(tpl[0])
+        sobj = int(tpl[1])
+        triple = "<http://nospacetime.com#"+str(ssub) + "> <http://nospacetime.com#relation"+ "> <http://nospacetime.com#" + str(sobj) + "> . \n"
+        fh_nt.write (triple)
 
 fh_in.close()
 fh_nt.close()

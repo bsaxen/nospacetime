@@ -68,6 +68,7 @@ def createRandomTriples(fh,triples,nodes):
 #============================================================
 
 fh_out = open(outFile,'w')
+fh_out.write(str(dimension)+'\n')
 createRandomTriples(fh_out,triples,dimension)
 fh_out.close()
 print ("Triple file created: "+outFile)
