@@ -1,0 +1,6 @@
+rm -f *.nt
+rm -f *.nst
+rm -f *.spe
+rm -f *.rel
+rm -f *.r3
+rm -f *.work

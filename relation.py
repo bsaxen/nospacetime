@@ -21,11 +21,12 @@ if n == 4:
     from_node = int(sys.argv[2])
     to_node = int(sys.argv[3])
     tpl = inFile.split(".")
-    outFile = 'S_'+tpl[0]+'_'+str(from_node)+'_'+str(to_node)+'.rel'
-    outFileNt = 'S_'+tpl[0]+'_'+str(from_node)+'_'+str(to_node)+'.nt'
+    caseName = tpl[0]
+    outFile = 'S_'+caseName+'_'+str(from_node)+'_'+str(to_node)+'.rel'
+    outFileNt = 'S_'+caseName+'_'+str(from_node)+'_'+str(to_node)+'.nt'
 else:
     print ("Usage: python3 relation.py <nst-file> <from node> <to node> ")
-    print ("OUTPUT: <out:relation_<from node>_<to node>.rel> ")
+    print ("OUTPUT: <out:relation_<nst-file>_<from node>_<to node>.rel> ")
     exit()
 #============================================================
 def calcS3(S3): # Overall Signalling Information
@@ -69,9 +70,9 @@ def calcS3(S3): # Overall Signalling Information
                     st = str(inode) + " " + str(istep) + " " + str(iear) + "\n"
                     fh1.write(st)
                     #print (st)
-                    fh2.write("<http://nospacetime.com/node"+str(inode)+ ">\
-                         <http://nospacetime.com/step"+str(istep)+">\
-                         <http://nospacetime.com/node"+str(iear) + "> . \n")
+                    fh2.write("<http://s3.com/node"+str(inode)+ ">\
+                         <http://s3.com/step"+str(istep)+">\
+                         <http://s3.com/node"+str(iear) + "> . \n")
 
             wx = np.einsum("ij, jk -> ik", wx, tx)
             wx = np.where(wx > 0, 1, wx)
@@ -83,7 +84,7 @@ def calcS3(S3): # Overall Signalling Information
 def triple(fh,seed, ear):
 #============================================================
     #print ("===== triple ======")
-    global dim,S3
+    global dim,S3,caseName
     #print gfile
     #print "seed= " + str(gseed) + " ear= " + str(ear)
     spectrum = np.zeros(dim+1)
@@ -114,9 +115,9 @@ def triple(fh,seed, ear):
     for i in range(0,n):
         ex[n-i-1] = e[i]
 
-    filename = "R3-"+str(seed)+"-"+str(ear)+".nt"
-    filename_spectrum = str(seed)+'-'+str(ear)+'.spe'
-    filename_r3 = str(seed)+'-'+str(ear)+'.r3'
+    filename = "R3-"+caseName+'_'+str(seed)+"-"+str(ear)+".nt"
+    filename_spectrum = 'SPECTRUM_'+caseName+'_'+str(seed)+'-'+str(ear)+'.spe'
+    filename_r3 = "R3-"+caseName+'_'+str(seed)+'-'+str(ear)+'.r3'
     #slogan  = "/var/www/html/kunskapsgraf/R3-"+str(seed)+"-"+str(ear)
 
     try:
@@ -146,7 +147,7 @@ def triple(fh,seed, ear):
                         #fh_i.write("<http://x.com/seed"+str(i+1)+ "> <http://x.com/relation> <http://x.com/step"+str(0) + "> . \n")
                         #fh_i.write("<http://x.com/step"+str(0)+ "> <http://x.com/relation> <http://x.com/ear"+str(j+1) + "> . \n")
                         #print ("seed=" + str(i+1) + " ear=" + str(j+1) + " step=0")
-                        fh_i.write("<http://x.com/seed"+str(seed)+"_"+str(i+1)+ "> <http://x.com/step0> <http://x.com/ear"+str(ear)+"_"+str(j+1) + "> . \n")
+                        fh_i.write("<http://r3.com/seed"+str(seed)+"_"+str(i+1)+ "> <http://r3.com/step0> <http://r3.com/ear"+str(ear)+"_"+str(j+1) + "> . \n")
                         #fh_r3.write( str(seed)+'_'+str(i+1)+ ' 0 '+str(ear)+'_'+str(j+1) + '\n')
                         dim1 = dim1 + 1
                         spectrum[0] += 1
@@ -160,7 +161,7 @@ def triple(fh,seed, ear):
                             #fh_i.write("<http://x.com/seed"+str(i+1)+ "> <http://x.com/relation> <http://x.com/step"+str(k+1) + "> . \n")
                             #fh_i.write("<http://x.com/step"+str(k+1)+ "> <http://x.com/relation> <http://x.com/ear"+str(j+1) + "> . \n")
 
-                            fh_i.write("<http://x.com/seed"+str(seed)+"_"+str(i+1)+ "> <http://x.com/step"+str(k+1)+"> <http://x.com/ear"+str(ear)+"_"+str(j+1)+"> . \n")
+                            fh_i.write("<http://r3.com/seed"+str(seed)+"_"+str(i+1)+ "> <http://r3.com/step"+str(k+1)+"> <http://r3.com/ear"+str(ear)+"_"+str(j+1)+"> . \n")
                             if i != j: # Only external relations
                                 fh_r3.write(str(seed)+'_'+str(i+1)+ ' ' + str(k+1) + ' ' +str(ear)+'_'+str(j+1) + '\n')
                             sum1 = sum1 + k + 1
@@ -186,7 +187,7 @@ def triple(fh,seed, ear):
     slogan  = str(dim1) + "-" + str(sum1)
     #print ("Slogan="+slogan)
     if dim1 > 0:
-        fh.write("<http://x.com/"+str(seed)+ "> <http://x.com/"+str(slogan)+"> <http://x.com/"+str(ear) + "> . \n") 
+        fh.write("<http://desktop.com/"+str(seed)+ "> <http://desktop.com/"+str(slogan)+"> <http://desktop.com/"+str(ear) + "> . \n") 
 
     return
 #============================================================
@@ -195,6 +196,8 @@ def single(node1, node2):
     print ("===== single ======")
     global dim
     #maxNodeValue = 2**dim - 1
+    nones1 = bin(int(node1))[2:].count('1')
+    nones2 = bin(int(node2))[2:].count('1')
     filename = 'DESKTOP.nt'
     fh = open(filename,'w')
     #if node1 < maxNodeValue and node2 < maxNodeValue:
