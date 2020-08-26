@@ -11,6 +11,7 @@ import numpy as np
 import time
 
 resources = []
+mx_spec = []
 #============================================================
 # Input
 #============================================================
@@ -84,9 +85,7 @@ def calcS3(S3): # Overall Signalling Information
 def triple(fh,seed, ear):
 #============================================================
     #print ("===== triple ======")
-    global dim,S3,caseName
-    #print gfile
-    #print "seed= " + str(gseed) + " ear= " + str(ear)
+    global dim,S3,caseName,mx_spec
     spectrum = np.zeros(dim+1)
 
     unique = np.zeros((dim,dim))
@@ -120,20 +119,20 @@ def triple(fh,seed, ear):
     filename_r3 = "R3-"+caseName+'_'+str(seed)+'-'+str(ear)+'.r3'
     #slogan  = "/var/www/html/kunskapsgraf/R3-"+str(seed)+"-"+str(ear)
 
-    try:
-        fh_i = open(filename,'w')
-    except:
-        print ("Open R3 file error"+filename)    
+    # try:
+    #     fh_i = open(filename,'w')
+    # except:
+    #     print ("Open R3 file error"+filename)    
 
-    try:
-        fh_sp = open(filename_spectrum,'w')
-    except:
-        print ("Open SPECTRUM file error"+filename_spectrum)    
+    # try:
+    #     fh_sp = open(filename_spectrum,'w')
+    # except:
+    #     print ("Open SPECTRUM file error"+filename_spectrum)    
 
-    try:
-        fh_r3 = open(filename_r3,'w')
-    except:
-        print ("Open r3 file error"+filename_r3)    
+    # try:
+    #     fh_r3 = open(filename_r3,'w')
+    # except:
+    #     print ("Open r3 file error"+filename_r3)    
 
     sum1 = 0
     dim1 = 0
@@ -147,7 +146,7 @@ def triple(fh,seed, ear):
                         #fh_i.write("<http://x.com/seed"+str(i+1)+ "> <http://x.com/relation> <http://x.com/step"+str(0) + "> . \n")
                         #fh_i.write("<http://x.com/step"+str(0)+ "> <http://x.com/relation> <http://x.com/ear"+str(j+1) + "> . \n")
                         #print ("seed=" + str(i+1) + " ear=" + str(j+1) + " step=0")
-                        fh_i.write("<http://r3.com/seed"+str(seed)+"_"+str(i+1)+ "> <http://r3.com/step0> <http://r3.com/ear"+str(ear)+"_"+str(j+1) + "> . \n")
+                        #fh_i.write("<http://r3.com/seed"+str(seed)+"_"+str(i+1)+ "> <http://r3.com/step0> <http://r3.com/ear"+str(ear)+"_"+str(j+1) + "> . \n")
                         #fh_r3.write( str(seed)+'_'+str(i+1)+ ' 0 '+str(ear)+'_'+str(j+1) + '\n')
                         dim1 = dim1 + 1
                         spectrum[0] += 1
@@ -161,22 +160,29 @@ def triple(fh,seed, ear):
                             #fh_i.write("<http://x.com/seed"+str(i+1)+ "> <http://x.com/relation> <http://x.com/step"+str(k+1) + "> . \n")
                             #fh_i.write("<http://x.com/step"+str(k+1)+ "> <http://x.com/relation> <http://x.com/ear"+str(j+1) + "> . \n")
 
-                            fh_i.write("<http://r3.com/seed"+str(seed)+"_"+str(i+1)+ "> <http://r3.com/step"+str(k+1)+"> <http://r3.com/ear"+str(ear)+"_"+str(j+1)+"> . \n")
-                            if i != j: # Only external relations
-                                fh_r3.write(str(seed)+'_'+str(i+1)+ ' ' + str(k+1) + ' ' +str(ear)+'_'+str(j+1) + '\n')
+                            #fh_i.write("<http://r3.com/seed"+str(seed)+"_"+str(i+1)+ "> <http://r3.com/step"+str(k+1)+"> <http://r3.com/ear"+str(ear)+"_"+str(j+1)+"> . \n")
+                            #if i != j: # Only external relations
+                            #    fh_r3.write(str(seed)+'_'+str(i+1)+ ' ' + str(k+1) + ' ' +str(ear)+'_'+str(j+1) + '\n')
                             sum1 = sum1 + k + 1
                             spectrum[k+1] += 1
                             #fh_i.write("<http://x.com/"+str(i+1)+ "> <http://x.com/"+str(j+1)+"> <http://x.com/"+str(k+1) + "> . \n")
                             #fh_i.write("<http://x.com/"+str(i+1)+"-"+str(k+1)+ "> <http://x.com/relation"+"> <http://x.com/"+str(j+1)+"-"+str(k+1) + "> . \n")
 
-    fh_i.close()
+    #fh_i.close()
 
-    for i in range(0,dim+1):
+    fh.write(str(seed) + " " + str(ear)+":")
+    spec = ''
+    for i in range(0,dim):
         itemp = int(spectrum[i])
-        fh_sp.write(str(i)+" "+str(itemp)+"\n")
+        #fh_sp.write(str(i)+" "+str(itemp)+"\n")
+        spec += str(itemp)+" "
+        fh.write(str(itemp)+" ")
+    fh.write("\n")
+    mx_spec.append(spec)
 
-    fh_sp.close()
-    fh_r3.close()
+
+    #fh_sp.close()
+    #fh_r3.close()
 
 
     if dim1 == 0:
@@ -186,24 +192,24 @@ def triple(fh,seed, ear):
     #slogan  = slogan + "-" + str(dim1) + "-" + str(sum1)
     slogan  = str(dim1) + "-" + str(sum1)
     #print ("Slogan="+slogan)
-    if dim1 > 0:
-        fh.write("<http://desktop.com/"+str(seed)+ "> <http://desktop.com/"+str(slogan)+"> <http://desktop.com/"+str(ear) + "> . \n") 
+    #if dim1 > 0:
+    #    fh.write("<http://desktop.com/"+str(seed)+ "> <http://desktop.com/"+str(slogan)+"> <http://desktop.com/"+str(ear) + "> . \n") 
 
     return
 #============================================================
-def single(node1, node2):
+def single(fh,node1, node2):
 #============================================================
-    print ("===== single ======")
+    print ("===== single ======"+str(node1)+' '+str(node2))
     global dim
     #maxNodeValue = 2**dim - 1
     nones1 = bin(int(node1))[2:].count('1')
     nones2 = bin(int(node2))[2:].count('1')
-    filename = 'DESKTOP.nt'
-    fh = open(filename,'w')
+    #filename = 'DESKTOP.nt'
+    #fh = open(filename,'w')
     #if node1 < maxNodeValue and node2 < maxNodeValue:
     triple(fh, node1, node2)
     triple(fh, node2, node1)
-    fh.close()
+    #fh.close()
     return
 #============================================================
 def addResource(res):
@@ -282,7 +288,25 @@ print( 'Objective Dimension: '+str(dim)+' '+'Triples: '+str(count)+' '+'Subjecti
 
 S3 = np.zeros((dim,dim,dim))
 calcS3(S3)
-single(from_node, to_node)
+fh_tot = open('spectrum.spe','w')
+for i in range(0,striples):
+    for j in range(0,striples):
+        if i != j:
+            single(fh_tot,i+1, j+1)
+        #single(from_node, to_node)
+fh_tot.close()
+
+#values, counts = np.unique(mx_spec, return_counts=True)
+unique_words = set(mx_spec)
+u_list = list(unique_words)    
+m = len(u_list)
+n = len(mx_spec)
+
+print(str(n)+" "+str(m))
+fh_tot = open('unique.spe','w')
+for i in range(0,m):
+    fh_tot.write(u_list[i]+'\n')
+fh_tot.close()
 
 #============================================================
 # End of File
