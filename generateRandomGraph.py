@@ -19,7 +19,8 @@ n = len(sys.argv)
 if n == 3:
     triples = int(sys.argv[1])
     dimension = int(sys.argv[2])
-    outFile = 'random_'+str(triples)+'_'+str(dimension)+'.nst'
+    #outFile = 'random_'+str(triples)+'_'+str(dimension)+'.nst'
+    outFile = 'random.nst'
 else:
     print ("Usage: python3 generateRandomGraph.py  <number of triples> <dimension> ")
     print ("OUTPUT FILE: random_<triples>_<dimension>.nst ")

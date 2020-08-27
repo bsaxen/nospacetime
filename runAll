@@ -1,16 +1,16 @@
 #====================================
 # Create nst file
 #====================================
-python3 generateRandomGraph.py 20 7
+python3 generateRandomGraph.py 20 5
 
 #====================================
 # Create nt file
 #====================================
-python3 generateNT.py random_20_7.nst
+python3 generateNT.py random.nst
 
 #====================================
 # Create relationbetween two nodes
 #====================================
-python3 relation.py random_20_7.nst 23 30
+python3 relation.py random.nst 1 2
 
 

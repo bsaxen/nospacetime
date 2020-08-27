@@ -199,7 +199,7 @@ def triple(fh,seed, ear):
 #============================================================
 def single(fh,node1, node2):
 #============================================================
-    print ("===== single ======"+str(node1)+' '+str(node2))
+    #print ("===== single ======"+str(node1)+' '+str(node2))
     global dim
     #maxNodeValue = 2**dim - 1
     nones1 = bin(int(node1))[2:].count('1')
@@ -208,7 +208,7 @@ def single(fh,node1, node2):
     #fh = open(filename,'w')
     #if node1 < maxNodeValue and node2 < maxNodeValue:
     triple(fh, node1, node2)
-    triple(fh, node2, node1)
+    #triple(fh, node2, node1)
     #fh.close()
     return
 #============================================================
@@ -237,6 +237,23 @@ def addResource(res):
             nn = nr
 
     return nn
+
+#============================================================
+def sumList(inp):
+#============================================================
+    split = inp.split(" ")
+    sum = 0
+    for i in range(0,len(split)-1):
+        sum += int(split[i])
+    return(sum)
+#============================================================
+def family(tot,inp):
+#============================================================
+    fileName = 'work/FAM_'+str(tot)+'.fam'
+    fh = open(fileName,"a+")
+    fh.write(inp+'\n')
+    fh.close()
+
 #============================================================
 # Read graph 
 #============================================================
@@ -263,7 +280,7 @@ dim = 0
 # fh_in.close()
 
 
-
+os.system("rm -f work/*")
 
 
 fh_in = open(inFile,'r')
@@ -305,7 +322,9 @@ n = len(mx_spec)
 print(str(n)+" "+str(m))
 fh_tot = open('unique.spe','w')
 for i in range(0,m):
-    fh_tot.write(u_list[i]+'\n')
+    x = sumList(u_list[i])
+    fh_tot.write(u_list[i]+' ['+str(x)+']\n')
+    family(x,u_list[i])
 fh_tot.close()
 
 #============================================================
