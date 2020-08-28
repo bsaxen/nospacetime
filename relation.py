@@ -12,6 +12,43 @@ import time
 
 resources = []
 mx_spec = []
+
+classUri = 'nospacetime.com#'
+counter = 0
+#============================================================
+def createTriple(fh,sub, pre, obj, literal,s_uri,p_uri,o_uri,littype):
+#============================================================
+    global counter
+    #print(sub+' '+pre+' '+obj)
+    counter  += 1
+    sub = sub.replace(" ","_")
+    if pre == 'type':
+        literal = 0 
+    if literal == 0:
+        obj = obj.replace(" ","_")
+        if pre == "type":
+            triple = '<http://'+s_uri+str(sub)+'> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>  <http://'+o_uri+str(obj)+'> . \n'
+        else:
+            triple = '<http://'+s_uri+str(sub)+'> <http://'+p_uri+str(pre)+'>  <http://'+o_uri+str(obj)+'> . \n'
+
+    if literal == 1:
+        if len(obj) > 0:
+            obj = obj.replace("\"","_")
+            obj = obj.replace("\n","")
+            if pre == "label":
+                triple = '<http://'+s_uri+str(sub)+'> <http://www.w3.org/2000/01/rdf-schema#label>  \"'+str(obj)+'\" . \n'
+            else:
+                #print('++++++ '+sub+' '+pre+' '+obj+'---- '+s_uri+' '+p_uri+' '+o_uri)
+                xtyp = '^^<http://www.w3.org/2001/XMLSchema#'+littype+'>'
+                triple = '<http://'+s_uri+str(sub)+'> <http://'+p_uri+str(pre)+ '>  \"' +str(obj)+'\"'+xtyp+' . \n'
+        else:
+            #print("VOID"+str(len(obj)))
+            triple = "void"
+
+    if triple != 'void':
+        fh.write(triple)
+
+    return triple
 #============================================================
 # Input
 #============================================================
@@ -42,10 +79,10 @@ def calcS3(S3): # Overall Signalling Information
         fh1 = open(outFile,'w')
     except:
         print ("Open file error1") 
-    try:
-        fh2 = open(outFileNt,'w')
-    except:
-        print ("Open file error2")     
+    #try:
+    #    fh2 = open(outFileNt,'w')
+    #except:
+    #    print ("Open file error2")     
 
     for node in range(0,dim):
         #print ("Seed Node="+str(node))
@@ -71,18 +108,18 @@ def calcS3(S3): # Overall Signalling Information
                     st = str(inode) + " " + str(istep) + " " + str(iear) + "\n"
                     fh1.write(st)
                     #print (st)
-                    fh2.write("<http://s3.com/node"+str(inode)+ ">\
-                         <http://s3.com/step"+str(istep)+">\
-                         <http://s3.com/node"+str(iear) + "> . \n")
+                    #fh2.write("<http://s3.com/node"+str(inode)+ ">\
+                    #     <http://s3.com/step"+str(istep)+">\
+                    #     <http://s3.com/node"+str(iear) + "> . \n")
 
             wx = np.einsum("ij, jk -> ik", wx, tx)
             wx = np.where(wx > 0, 1, wx)
     fh1.close()
-    fh2.close()
+    #fh2.close()
 
     return
 #============================================================
-def triple(fh,seed, ear):
+def triple(fh_global,fh,seed, ear):
 #============================================================
     #print ("===== triple ======")
     global dim,S3,caseName,mx_spec
@@ -179,6 +216,14 @@ def triple(fh,seed, ear):
         fh.write(str(itemp)+" ")
     fh.write("\n")
     mx_spec.append(spec)
+    temp = spec.replace(" ","_")
+    node_ear = 'NODE_'+str(ear)
+    node_seed = 'NODE_'+str(seed)
+    createTriple(fh_global,str(node_seed), 'type', 'Node', 0,classUri,classUri,classUri,'void')
+    #createTriple(fh_global,str(ear), 'type', 'Node', 0,classUri,classUri,classUri,'void')
+    createTriple(fh_global,str(node_seed), 'out', temp, 0,classUri,classUri,classUri,'void')
+    createTriple(fh_global,str(node_ear), 'in', temp, 0,classUri,classUri,classUri,'void')
+    createTriple(fh_global,str(node_seed), temp,str(node_ear) , 0,classUri,classUri,classUri,'void')
 
 
     #fh_sp.close()
@@ -197,7 +242,7 @@ def triple(fh,seed, ear):
 
     return
 #============================================================
-def single(fh,node1, node2):
+def single(fh_g,fh,node1, node2):
 #============================================================
     #print ("===== single ======"+str(node1)+' '+str(node2))
     global dim
@@ -207,7 +252,7 @@ def single(fh,node1, node2):
     #filename = 'DESKTOP.nt'
     #fh = open(filename,'w')
     #if node1 < maxNodeValue and node2 < maxNodeValue:
-    triple(fh, node1, node2)
+    triple(fh_g,fh, node1, node2)
     #triple(fh, node2, node1)
     #fh.close()
     return
@@ -281,7 +326,7 @@ dim = 0
 
 
 os.system("rm -f work/*")
-
+fh_global = open('global.nt','w')
 
 fh_in = open(inFile,'r')
 count = 0
@@ -305,11 +350,12 @@ print( 'Objective Dimension: '+str(dim)+' '+'Triples: '+str(count)+' '+'Subjecti
 
 S3 = np.zeros((dim,dim,dim))
 calcS3(S3)
+
 fh_tot = open('spectrum.spe','w')
 for i in range(0,striples):
     for j in range(0,striples):
         if i != j:
-            single(fh_tot,i+1, j+1)
+            single(fh_global,fh_tot,i+1, j+1)
         #single(from_node, to_node)
 fh_tot.close()
 
@@ -320,13 +366,29 @@ m = len(u_list)
 n = len(mx_spec)
 
 print(str(n)+" "+str(m))
+many = np.zeros(1000)
+xmax = 0
 fh_tot = open('unique.spe','w')
 for i in range(0,m):
     x = sumList(u_list[i])
+    many[int(x)] += int(1)
+    if x > xmax:
+        xmax = x
+    xtemp = 'SUM_'+ str(x)
     fh_tot.write(u_list[i]+' ['+str(x)+']\n')
+    temp = u_list[i].replace(" ","_")
+    createTriple(fh_global,str(temp), 'type', 'Relation', 0,classUri,classUri,classUri,'void')
+    createTriple(fh_global,str(xtemp), 'type', 'Sum', 0,classUri,classUri,classUri,'void')
+    createTriple(fh_global,str(temp), 'hasSum', str(xtemp), 0,classUri,classUri,classUri,'void')
     family(x,u_list[i])
 fh_tot.close()
 
+print("XMAX="+str(xmax))
+for i in range(0,xmax):
+    xtemp = 'SUM_'+ str(i)
+    createTriple(fh_global,str(xtemp), 'noOfLiterals', str(int(many[i])), 1,classUri,classUri,classUri,'integer')
+
+fh_global.close()
 #============================================================
 # End of File
 #============================================================
