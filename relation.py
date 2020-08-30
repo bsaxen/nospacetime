@@ -54,14 +54,14 @@ def createTriple(fh,sub, pre, obj, literal,s_uri,p_uri,o_uri,littype):
 #============================================================
 n = len(sys.argv)
 
-if n == 4:
+if n == 2:
     inFile = sys.argv[1]
-    from_node = int(sys.argv[2])
-    to_node = int(sys.argv[3])
+    #from_node = int(sys.argv[2])
+    #to_node = int(sys.argv[3])
     tpl = inFile.split(".")
     caseName = tpl[0]
-    outFile = 'S_'+caseName+'_'+str(from_node)+'_'+str(to_node)+'.rel'
-    outFileNt = 'S_'+caseName+'_'+str(from_node)+'_'+str(to_node)+'.nt'
+    #outFile = 'S_'+caseName+'_'+str(from_node)+'_'+str(to_node)+'.rel'
+    #outFileNt = 'S_'+caseName+'_'+str(from_node)+'_'+str(to_node)+'.nt'
 else:
     print ("Usage: python3 relation.py <nst-file> <from node> <to node> ")
     print ("OUTPUT: <out:relation_<nst-file>_<from node>_<to node>.rel> ")
@@ -75,10 +75,10 @@ def calcS3(S3): # Overall Signalling Information
     wx = np.zeros((dim,dim))
 
     tx = mx.transpose()
-    try:
-        fh1 = open(outFile,'w')
-    except:
-        print ("Open file error1") 
+    #try:
+    #    fh1 = open(outFile,'w')
+    #except:
+    #   print ("Open file error1") 
     #try:
     #    fh2 = open(outFileNt,'w')
     #except:
@@ -105,8 +105,8 @@ def calcS3(S3): # Overall Signalling Information
                     inode = node + 1
                     istep = step + 1
                     iear  = ear + 1
-                    st = str(inode) + " " + str(istep) + " " + str(iear) + "\n"
-                    fh1.write(st)
+                    #st = str(inode) + " " + str(istep) + " " + str(iear) + "\n"
+                    #fh1.write(st)
                     #print (st)
                     #fh2.write("<http://s3.com/node"+str(inode)+ ">\
                     #     <http://s3.com/step"+str(istep)+">\
@@ -114,12 +114,12 @@ def calcS3(S3): # Overall Signalling Information
 
             wx = np.einsum("ij, jk -> ik", wx, tx)
             wx = np.where(wx > 0, 1, wx)
-    fh1.close()
+    #fh1.close()
     #fh2.close()
 
     return
 #============================================================
-def triple(fh_global,fh,seed, ear):
+def triple(fh_global,fh_spectrum,seed, ear):
 #============================================================
     #print ("===== triple ======")
     global dim,S3,caseName,mx_spec
@@ -207,23 +207,31 @@ def triple(fh_global,fh,seed, ear):
 
     #fh_i.close()
 
-    fh.write(str(seed) + " " + str(ear)+":")
+    fh_spectrum.write(str(seed) + " " + str(ear)+":")
     spec = ''
+    zum = 0
     for i in range(0,dim):
         itemp = int(spectrum[i])
+        zum += itemp*(i+1) 
         #fh_sp.write(str(i)+" "+str(itemp)+"\n")
         spec += str(itemp)+" "
-        fh.write(str(itemp)+" ")
-    fh.write("\n")
+        fh_spectrum.write(str(itemp)+" ")
+    fh_spectrum.write("\n")
+    szup = str(zum)
     mx_spec.append(spec)
     temp = spec.replace(" ","_")
     node_ear = 'NODE_'+str(ear)
     node_seed = 'NODE_'+str(seed)
     createTriple(fh_global,str(node_seed), 'type', 'Node', 0,classUri,classUri,classUri,'void')
     #createTriple(fh_global,str(ear), 'type', 'Node', 0,classUri,classUri,classUri,'void')
+    
     createTriple(fh_global,str(node_seed), 'out', temp, 0,classUri,classUri,classUri,'void')
     createTriple(fh_global,str(node_ear), 'in', temp, 0,classUri,classUri,classUri,'void')
     createTriple(fh_global,str(node_seed), temp,str(node_ear) , 0,classUri,classUri,classUri,'void')
+
+    createTriple(fh_global,szup, 'type', 'Zum', 0,classUri,classUri,classUri,'void')
+    createTriple(fh_global,temp, 'hasZum', szup, 0,classUri,classUri,classUri,'void')
+
 
 
     #fh_sp.close()
@@ -242,7 +250,7 @@ def triple(fh_global,fh,seed, ear):
 
     return
 #============================================================
-def single(fh_g,fh,node1, node2):
+def single(fh_g,fh_spectrum,node1, node2):
 #============================================================
     #print ("===== single ======"+str(node1)+' '+str(node2))
     global dim
@@ -252,7 +260,7 @@ def single(fh_g,fh,node1, node2):
     #filename = 'DESKTOP.nt'
     #fh = open(filename,'w')
     #if node1 < maxNodeValue and node2 < maxNodeValue:
-    triple(fh_g,fh, node1, node2)
+    triple(fh_g,fh_spectrum, node1, node2)
     #triple(fh, node2, node1)
     #fh.close()
     return
@@ -351,13 +359,13 @@ print( 'Objective Dimension: '+str(dim)+' '+'Triples: '+str(count)+' '+'Subjecti
 S3 = np.zeros((dim,dim,dim))
 calcS3(S3)
 
-fh_tot = open('spectrum.spe','w')
+fh_spectrum = open('spectrum.spe','w')
 for i in range(0,striples):
     for j in range(0,striples):
         if i != j:
-            single(fh_global,fh_tot,i+1, j+1)
+            single(fh_global,fh_spectrum,i+1, j+1)
         #single(from_node, to_node)
-fh_tot.close()
+fh_spectrum.close()
 
 #values, counts = np.unique(mx_spec, return_counts=True)
 unique_words = set(mx_spec)

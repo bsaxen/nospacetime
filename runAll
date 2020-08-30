@@ -1,16 +1,16 @@
 #====================================
 # Create nst file
 #====================================
-python3 generateRandomGraph.py 4 3
+python3 generateRandomGraph.py 4 4
 
 #====================================
-# Create nt file
+# Create nt file with rality graph and links to desktop nodes
 #====================================
 python3 generateNT.py random.nst
 
 #====================================
-# Create relationbetween two nodes
+# Create relation between all desktop nodes
 #====================================
-python3 relation.py random.nst 1 2
+python3 relation.py random.nst
 
 
