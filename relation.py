@@ -1,7 +1,7 @@
 #============================================================
 # File:   relation.py
 # Author: Benny Saxen
-# Date:   2020-08-07
+# Date:   2020-12-19
 #============================================================
 import sys,os
 import random
@@ -15,6 +15,61 @@ mx_spec = []
 
 classUri = 'nospacetime.com#'
 counter = 0
+
+hex2bin = dict('{:x} {:04b}'.format(x,x).split() for x in range(16))
+bin2hex = dict('{:b} {:x}'.format(x,x).split() for x in range(16))
+ 
+#============================================================
+def float_dec2bin(d):
+#============================================================  
+    neg = False
+    if d < 0:
+        d = -d
+        neg = True
+    hx = float(d).hex()
+    p = hx.index('p')
+    bn = ''.join(hex2bin.get(char, char) for char in hx[2:p])
+    res =  (('-' if neg else '') + bn.strip('0') + hx[p:p+2]
+            + bin(int(hx[p+2:]))[2:])
+    temp1 = bn.strip('0')
+    temp2 = bin(int(hx[p+2:]))[2:]
+    #print("1="+temp1)
+    #print("2="+temp2)
+    temp3 = int(temp2,2)
+    #print(str(temp3))
+
+    temp1 = temp1.replace(".","")
+    
+    left = temp1[0:temp3+1]
+    right = temp1[temp3+1:len(temp1)]
+
+    #print("left="+left)
+    #print("right="+right)
+
+    res = left+'.'+right
+    return res
+#============================================================
+def float_bin2dec(bn):
+#============================================================
+    neg = False
+    if bn[0] == '-':
+        bn = bn[1:]
+        neg = True
+    dp = bn.index('.')
+    extra0 = '0' * (4 - (dp % 4))
+    bn2 = extra0 + bn
+    dp = bn2.index('.')
+    p = bn2.index('p')
+    hx = ''.join(bin2hex.get(bn2[i:min(i+4, p)].lstrip('0'), bn2[i])
+                 for i in range(0, dp+1, 4))
+    bn3 = bn2[dp+1:p]
+    extra0 = '0' * (4 - (len(bn3) % 4))
+    bn4 = bn3 + extra0
+    hx += ''.join(bin2hex.get(bn4[i:i+4].lstrip('0'))
+                  for i in range(0, len(bn4), 4))
+    hx = (('-' if neg else '') + '0x' + hx + bn2[p:p+2]
+          + str(int('0b' + bn2[p+2:], 2)))
+    return float.fromhex(hx)
 #============================================================
 def createTriple(fh,sub, pre, obj, literal,s_uri,p_uri,o_uri,littype):
 #============================================================
@@ -139,6 +194,13 @@ def triple(fh_global,fh_spectrum,seed, ear):
  
     b = "{0:b}".format(seed)
     e = "{0:b}".format(ear)
+    rev_e = e[::-1]
+    #rev_e = "{0:b}".format(rev_int_e)
+    
+    real = b+'.'+rev_e + 'p+0'
+    print("Real="+real+" "+str(b)+"-"+str(e))
+    z = float_bin2dec(real)
+    print(z)
     #print ("dim="+str(dim))
     #print ("seed=" + b + "(" + str(seed) + ")")
     #print ("ear=" + e + "(" + str(ear) + ")")
