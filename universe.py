@@ -1,5 +1,5 @@
 #============================================================
-# File:   relation.py
+# File:   universe.py
 # Author: Benny Saxen
 # Date:   2020-12-26
 #============================================================
@@ -203,7 +203,8 @@ def triple(fh_real,fh_global,fh_spectrum,seed, ear):
         re += int(e[i])*(0.5**(n-i))
 
     real = rb + re
-    #print('>'+str(real)+'   '+str(b)+'-'+str(e))
+    print('>'+str(real)+'   '+str(b)+'-'+str(e)+' seed:'+str(seed)+' ear:'+str(ear))
+    print('>'+str(real)+'   '+str(rb)+'-'+str(re)+' seed:'+str(seed)+' ear:'+str(ear))
     filename = "R3-"+caseName+'_'+str(seed)+"-"+str(ear)+".nt"
     filename_spectrum = 'SPECTRUM_'+caseName+'_'+str(seed)+'-'+str(ear)+'.spe'
     filename_r3 = "R3-"+caseName+'_'+str(seed)+'-'+str(ear)+'.r3'
@@ -242,6 +243,7 @@ def triple(fh_real,fh_global,fh_spectrum,seed, ear):
     temp = spec.replace(" ","_")
     node_ear = 'NODE_'+str(ear)
     node_seed = 'NODE_'+str(seed)
+    createTriple(fh_global,str(node_ear), 'type', 'Node', 0,classUri,classUri,classUri,'void')
     createTriple(fh_global,str(node_seed), 'type', 'Node', 0,classUri,classUri,classUri,'void')
     
     createTriple(fh_global,str(node_seed), 'out', temp, 0,classUri,classUri,classUri,'void')
@@ -354,12 +356,11 @@ print( 'Objective Dimension: '+str(dim)+' '+'Triples: '+str(count)+' '+'Subjecti
 S3 = np.zeros((dim,dim,dim))
 calcS3(S3)
 
+#======================================================
+i = 232411
+j = 122198
 fh_spectrum = open('spectrum.spe','w')
-for i in range(0,striples):
-    for j in range(0,striples):
-        if i != j:
-            single(fh_real,fh_global,fh_spectrum,i+1, j+1)
-        #single(from_node, to_node)
+single(fh_real,fh_global,fh_spectrum,i, j)
 fh_spectrum.close()
 
 #values, counts = np.unique(mx_spec, return_counts=True)
@@ -369,7 +370,7 @@ m = len(u_list)
 n = len(mx_spec)
 
 print(str(n)+" "+str(m))
-many = np.zeros(1000)
+many = np.zeros(10000)
 xmax = 0
 fh_tot = open('unique.spe','w')
 for i in range(0,m):

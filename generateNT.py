@@ -146,14 +146,14 @@ for line in fh_in:
 fh_in.close()
 
 nodes = 2**dim -1
-for i in range(1,nodes):
-    for j in range(1,dim+1):
-        res = isKthBitSet(i, j)
-        if res == 1:
-            sub = 'NODE_'+str(i)
-            obj = 'FOLKE_'+str(j)
-            createTriple(fh_nt,str(sub), 'real', str(obj), 0,classUri,classUri,classUri,'void')
-fh_nt.close()
+# for i in range(1,nodes):
+#     for j in range(1,dim+1):
+#         res = isKthBitSet(i, j)
+#         if res == 1:
+#             sub = 'NODE_'+str(i)
+#             obj = 'FOLKE_'+str(j)
+#             createTriple(fh_nt,str(sub), 'real', str(obj), 0,classUri,classUri,classUri,'void')
+# fh_nt.close()
 
 print ("NT triple file created: "+ntFile)
 #============================================================
